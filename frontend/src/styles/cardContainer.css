@@ -1,0 +1,54 @@
+.overall-card-container {
+    border: 2px solid #fff;
+    padding: 2rem;
+    border-radius: 10px;
+}
+
+.cards-wrapper {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+}
+
+.card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 2px solid #fff;
+    flex: 1;
+    gap: 1rem;
+}
+
+.card:hover{
+    cursor: pointer;
+    background-color: #424242;
+    border-color: #424242;
+}
+
+.emoji {
+    width: 5rem;
+}
+
+.grid-size {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 5rem;
+}
+
+#rows {
+    width: 2rem;
+}
+
+#columns {
+    width: 2rem;
+}
+
+.toggle-emoji-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
