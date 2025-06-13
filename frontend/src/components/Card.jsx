@@ -42,7 +42,7 @@ export default function Card({ images, card, onClick, showName }) {
                 
                 {/* Front of card (shown when loaded) */}
                 <div className="card-front">
-                    {showName && imageLoaded && <p>{card.hex}</p>}
+                    {showName && imageLoaded && <p>{card.name}</p>}
                     {images[card.hex] && (
                         <img 
                             className="emoji" 

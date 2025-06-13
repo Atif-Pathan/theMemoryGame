@@ -53,7 +53,7 @@ function App() {
       }
 
       fetchAllEmojis();
-      console.log('all meta data fetched!');
+      // console.log('all meta data fetched!');
       
   }, []) // runs once on mount to pull all of the data for emojis
 

@@ -35,7 +35,7 @@ export default function GameManager({
     
     // Separate function for initial round creation - does NOT increment round
     const createInitialRound = (batchSize = difficulty * 4) => {
-        console.log('Creating initial round - round should stay at 1');
+        // console.log('Creating initial round - round should stay at 1');
         const availableEmojis = allEmojisMetaData.filter((emoji) => !usedIDs.has(emoji.hexcode))
         if (availableEmojis.length > 0 && availableEmojis.length < batchSize) {
             console.warn("Not enough unique emojis left for initial round!");
@@ -54,12 +54,12 @@ export default function GameManager({
         setCurrentRoundCards(newCards);
         // Do NOT increment round for initial setup
         setImagesFetchTrigger(prev => prev + 1);
-        console.log('Initial round created - round is:', 1);
+        // console.log('Initial round created - round is:', 1);
     };
     
     // Function for advancing to next round - DOES increment round
     const advanceToNextRound = (batchSize = difficulty * 4) => {
-        console.log('Advancing to next round from round:', round);
+        // console.log('Advancing to next round from round:', round);
         const availableEmojis = allEmojisMetaData.filter((emoji) => !usedIDs.has(emoji.hexcode))
         if (availableEmojis.length > 0 && availableEmojis.length < batchSize) {
             console.warn("Not enough unique emojis left for next round!");
@@ -78,7 +78,7 @@ export default function GameManager({
         setCurrentRoundCards(newCards);
         setRound(prevRound => prevRound + 1); // Increment round for next round
         setImagesFetchTrigger(prev => prev + 1);
-        console.log('Advanced to round:', round + 1);
+        // console.log('Advanced to round:', round + 1);
     };
 
     const handleCardClick = (clickedHex) => {
@@ -105,13 +105,13 @@ export default function GameManager({
             // Check if we've clicked all cards in the current round
             if (newClickedCards.size === currentRoundCards.length) {
                 // Perfect round completed - advance to next round
-                console.log(`Round ${round} completed! Clicked ${newClickedCards.size} out of ${currentRoundCards.length} cards`);
+                // console.log(`Round ${round} completed! Clicked ${newClickedCards.size} out of ${currentRoundCards.length} cards`);
                 setClickedCardHexes(new Set());
                 advanceToNextRound(difficulty * 4);
             } else {
                 // If the round is not over, just shuffle the current cards
                 setCurrentRoundCards(prevCards => shuffle([...prevCards]));
-                console.log('cards shuffled');
+                // console.log('cards shuffled');
             }
         }
     };
@@ -129,7 +129,7 @@ export default function GameManager({
     // Create initial round only once when metadata loads
     useEffect(() => {
         if (allEmojisMetaData.length > 0 && !isInitialRoundCreated) {
-            console.log('useEffect triggered - creating initial round');
+            // console.log('useEffect triggered - creating initial round');
             createInitialRound();
             setIsInitialRoundCreated(true);
         }
@@ -142,7 +142,7 @@ export default function GameManager({
         }
 
         const preloadRoundImages = async () => {
-            console.log('Starting to fetch images for round:', round);
+            // console.log('Starting to fetch images for round:', round);
             
             const imagePromises = currentRoundCards.map(async (card) => {
                 try {
@@ -177,7 +177,7 @@ export default function GameManager({
             });
 
             setPreloadedImages(newImageMap);
-            console.log('Images loaded for round:', round, 'Image count:', Object.keys(newImageMap).length);
+            // console.log('Images loaded for round:', round, 'Image count:', Object.keys(newImageMap).length);
         };
 
         preloadRoundImages();
@@ -190,7 +190,7 @@ export default function GameManager({
         
     }, [imagesFetchTrigger, currentRoundCards.length]);
 
-    console.log('Current round:', round, 'emojis clicked:', clickedCardHexes.size);
+    // console.log('Current round:', round, 'emojis clicked:', clickedCardHexes.size);
     
     return (
         <div className="game-container">
