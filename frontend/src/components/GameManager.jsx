@@ -1,16 +1,26 @@
 import { useState, useEffect } from "react";
 import CardContainer from "./CardContainer";
+import GameHeader from "./GameHeader";
+import "../styles/gameManager.css";
 
-export default function GameManager() {
-    const [allEmojisMetaData, setAllEmojisMetaData] = useState([]);
-    const [round, setRound] = useState(0);
+export default function GameManager({ 
+    difficulty, 
+    allEmojisMetaData, 
+    currentScore, 
+    onScoreUpdate, 
+    onGameOver, 
+    onBackToMenu, 
+    gameReset 
+}) {
+    const [round, setRound] = useState(1);
     const [currentRoundCards, setCurrentRoundCards] = useState([]);
     const [preloadedImages, setPreloadedImages] = useState({})
     const [usedIDs, setUsedIDs] = useState(new Set());
     const [isInitialRoundCreated, setIsInitialRoundCreated] = useState(false);
-    const [score, setScore] = useState(0);
     const [clickedCardHexes, setClickedCardHexes] = useState(new Set());
     const [showName, setShowName] = useState(false);
+    const [gameOver, setGameOver] = useState(false);
+    const [imagesFetchTrigger, setImagesFetchTrigger] = useState(0);
 
     // Fisher - Yates shuffle algo - helper functions to shuffle an array
     const shuffle = ([...arr]) => {
@@ -21,55 +31,87 @@ export default function GameManager() {
         }
         return arr;
     };
-    const sampleSize = ([...arr], n = 1) => shuffle(arr).slice(0, n); // use this to shuffle array and get top n elements
+    const sampleSize = ([...arr], n = 1) => shuffle(arr).slice(0, n);
     
-    const refreshCards = (batchSize = 15) => {
-        // get available emojis only by filtering agains the usedIDs set
+    // Separate function for initial round creation - does NOT increment round
+    const createInitialRound = (batchSize = difficulty * 4) => {
+        console.log('Creating initial round - round should stay at 1');
         const availableEmojis = allEmojisMetaData.filter((emoji) => !usedIDs.has(emoji.hexcode))
         if (availableEmojis.length > 0 && availableEmojis.length < batchSize) {
-            console.warn("Not enough unique emojis left for a new round!");
+            console.warn("Not enough unique emojis left for initial round!");
             return [];
         }
 
-        // then use the shuffle and sample functions to get the new batch from available emojis
         const newBatch = sampleSize(availableEmojis, batchSize);
-        // only holds the necessary info --> hexcode and the name of the emoji
         const newCards = newBatch.map(emoji => ({ 'hex': emoji.hexcode, 'name': emoji.annotation}));
 
-        // update the usedIDs state with new updated set
         setUsedIDs(prevIDs => {
             const newUsedIDs = new Set(prevIDs);
             newBatch.forEach(emoji => newUsedIDs.add(emoji.hexcode));
             return newUsedIDs;
         })
 
-        // update state that holds the current batch of cards
         setCurrentRoundCards(newCards);
-        // update the round number
-        setRound(prevRound => prevRound + 1);
-        console.log('cards refreshed');
+        // Do NOT increment round for initial setup
+        setImagesFetchTrigger(prev => prev + 1);
+        console.log('Initial round created - round is:', 1);
+    };
+    
+    // Function for advancing to next round - DOES increment round
+    const advanceToNextRound = (batchSize = difficulty * 4) => {
+        console.log('Advancing to next round from round:', round);
+        const availableEmojis = allEmojisMetaData.filter((emoji) => !usedIDs.has(emoji.hexcode))
+        if (availableEmojis.length > 0 && availableEmojis.length < batchSize) {
+            console.warn("Not enough unique emojis left for next round!");
+            return [];
+        }
+
+        const newBatch = sampleSize(availableEmojis, batchSize);
+        const newCards = newBatch.map(emoji => ({ 'hex': emoji.hexcode, 'name': emoji.annotation}));
+
+        setUsedIDs(prevIDs => {
+            const newUsedIDs = new Set(prevIDs);
+            newBatch.forEach(emoji => newUsedIDs.add(emoji.hexcode));
+            return newUsedIDs;
+        })
+
+        setCurrentRoundCards(newCards);
+        setRound(prevRound => prevRound + 1); // Increment round for next round
+        setImagesFetchTrigger(prev => prev + 1);
+        console.log('Advanced to round:', round + 1);
     };
 
     const handleCardClick = (clickedHex) => {
         if (clickedCardHexes.has(clickedHex)) {
-            // game over, reset the game
-            setScore(0);
+            // Game over - reset to round 1 and clear clicked cards
             setClickedCardHexes(new Set());
             setRound(1);
+            setGameOver(true);
+            onGameOver();
             return;
         } else {
-            setScore(prevScore => prevScore + 1);
-            setClickedCardHexes(prevClicked => new Set(prevClicked).add(clickedHex));
-            if ((score + 1) === currentRoundCards.length) {
-                // if we get all the emojis and a perfect score
-                // then we refresh the cards and start with a new set
+            // Clear game over state on successful click
+            if (gameOver) {
+                setGameOver(false);
                 setClickedCardHexes(new Set());
-                refreshCards();
+                setImagesFetchTrigger(prev => prev + 1);
+            }
+            
+            const newScore = currentScore + 1;
+            onScoreUpdate(newScore);
+            const newClickedCards = new Set(clickedCardHexes).add(clickedHex);
+            setClickedCardHexes(newClickedCards);
+            
+            // Check if we've clicked all cards in the current round
+            if (newClickedCards.size === currentRoundCards.length) {
+                // Perfect round completed - advance to next round
+                console.log(`Round ${round} completed! Clicked ${newClickedCards.size} out of ${currentRoundCards.length} cards`);
+                setClickedCardHexes(new Set());
+                advanceToNextRound(difficulty * 4);
             } else {
                 // If the round is not over, just shuffle the current cards
                 setCurrentRoundCards(prevCards => shuffle([...prevCards]));
                 console.log('cards shuffled');
-                
             }
         }
     };
@@ -77,43 +119,35 @@ export default function GameManager() {
     const handleShowName = () => {
         setShowName(!showName);
     }
-    
+
     useEffect(() => {
-        const fetchAllEmojis = async () => {
-            try {
-                const response = await fetch(`/api/emojis`);
-                const data = await response.json();
-                setAllEmojisMetaData(data);                
-            } catch (error) {
-                console.log(error);   
-            }
+        if (gameReset && currentScore === 0) {
+            setGameOver(false);
         }
+    }, [gameReset, currentScore]);
 
-        fetchAllEmojis();
-    }, []) // runs once on mount to pull all of the data for emojis
-
+    // Create initial round only once when metadata loads
     useEffect(() => {
-        // Add a guard: only run if metadata is loaded AND the initial round hasn't been created yet.
         if (allEmojisMetaData.length > 0 && !isInitialRoundCreated) {
-            refreshCards();
-            setIsInitialRoundCreated(true); // Set the flag so this doesn't run again
+            console.log('useEffect triggered - creating initial round');
+            createInitialRound();
+            setIsInitialRoundCreated(true);
         }
-    }, [allEmojisMetaData, isInitialRoundCreated]);
+    }, [allEmojisMetaData.length, isInitialRoundCreated]); // Changed dependency to length to avoid object reference issues
 
-    // fetch png blob whenever new round starts, i.e currentRoundCards changes
+    // fetch png blob whenever we need new images
     useEffect(() => {
-        if (currentRoundCards.length === 0 || round === 0) {
-            return; // if no cards then return
+        if (currentRoundCards.length === 0) {
+            return;
         }
 
         const preloadRoundImages = async () => {
-            // Create an array of promises, one for each card's image fetch
+            console.log('Starting to fetch images for round:', round);
+            
             const imagePromises = currentRoundCards.map(async (card) => {
                 try {
                     const encodedHex = encodeURIComponent(card.hex);
-                    
-                    // Construct the URL to my proxy
-                    const imageUrl = `/api/emojis/${encodedHex}/noto/png/128`; // change pixel size if needed
+                    const imageUrl = `/api/emojis/${encodedHex}/noto/png/128`;
 
                     const response = await fetch(imageUrl);
                     if (!response.ok) {
@@ -122,24 +156,19 @@ export default function GameManager() {
                     const blob = await response.blob();
                     const blobUrl = URL.createObjectURL(blob);
                     
-                    // Return the hexcode and its corresponding Blob URL
                     return { hex: card.hex, blobUrl: blobUrl };
                 } catch (error) {
                     console.error(error);
-                    // Return null on failure so we can handle it
                     return { hex: card.hex, blobUrl: null };
                 }
             });
 
-            // Wait for all the image fetch promises to resolve
             const loadedImages = await Promise.all(imagePromises);
 
-            // IMPORTANT: Clean up Blob URLs from the *previous* round to prevent memory leaks
             Object.values(preloadedImages).forEach(url => {
                 if (url) URL.revokeObjectURL(url);
             });
 
-            // Create a new map/object for the newly loaded images
             const newImageMap = {};
             loadedImages.forEach(img => {
                 if (img.blobUrl) {
@@ -147,37 +176,35 @@ export default function GameManager() {
                 }
             });
 
-            // Update the state with the new map of preloaded images
             setPreloadedImages(newImageMap);
+            console.log('Images loaded for round:', round, 'Image count:', Object.keys(newImageMap).length);
         };
 
         preloadRoundImages();
 
-        // clean up old images
         return () => {
             Object.values(preloadedImages).forEach(url => {
                 if (url) URL.revokeObjectURL(url);
             });
         };
         
-    }, [round])
+    }, [imagesFetchTrigger, currentRoundCards.length]);
 
-    // console.log('emojis used so far:', usedIDs.size);
+    console.log('Current round:', round, 'emojis clicked:', clickedCardHexes.size);
     
     return (
-        <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-            <div style={{display: 'flex', gap: '1rem', justifyContent: 'center', alignItems: 'center'}}>
-                <div className="grid-size">
-                    <input type="number" name="rows" id="rows" defaultValue={3} max={10} min={1}/>
-                    <p>X</p>
-                    <input type="number" name="columns" id="columns" value={5} readOnly disabled/>
-                </div>
-                <button>Score: {score}</button>
-                <div className="toggle-emoji-name">
-                    <input type="checkbox" name="toggle-name" id="toggle-name" checked={showName} onChange={handleShowName}/>
-                    <label htmlFor="toggle-name">Toggle Emoji Name</label>
-                </div>
-            </div>
+        <div className="game-container">
+            <button onClick={onBackToMenu} className="back-button">← Back to Menu</button>
+            
+            <GameHeader 
+                currentScore={currentScore}
+                difficulty={difficulty}
+                round={round}
+                showName={showName}
+                onToggleName={handleShowName}
+                gameOver={gameOver}
+            />
+            
             <CardContainer 
                 cards={currentRoundCards} 
                 images={preloadedImages}

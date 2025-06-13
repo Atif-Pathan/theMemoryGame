@@ -1,0 +1,141 @@
+.game-header {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-primary);
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 20px var(--shadow-card);
+  flex-wrap: wrap;
+}
+
+.score-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.current-score, .best-score {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.best-score > strong {
+  color: var(--accent-primary);
+}
+
+.best-score-2 {
+  font-family: var(--text-muted);
+  font-weight: 900;
+  color: var(--accent-success);
+  font-size: 1.4rem;
+  /* opacity: 0.4; */
+  /* text-decoration: underline; */
+}
+
+.score-value {
+  color: var(--accent-primary);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.game-over-text {
+  color: #ef4444;
+  font-weight: 700;
+  animation: pulse-red 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.grid-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.round-info {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.round-value {
+  color: var(--accent-secondary);
+  font-weight: 700;
+}
+
+.grid-size {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.card-count {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.toggle-section {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.toggle-input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+}
+
+.toggle-text {
+  user-select: none;
+}
+
+@media (max-width: 640px) {
+  .game-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+  
+  .score-section {
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .current-score {
+    font-size: 0.9rem;
+  }
+  
+  .game-over-text {
+    font-size: 0.75rem;
+  }
+}
