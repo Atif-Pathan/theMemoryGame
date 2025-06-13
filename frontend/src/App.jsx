@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import GameManager from "./components/GameManager";
 import LandingPage from "./components/LandingPage";
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   const [gameStarted, setGameStarted] = useState(false);
@@ -72,6 +73,7 @@ function App() {
       ) : (
         <LandingPage onStartGame={handleStartGame} />
       )}
+      <Analytics />
     </>
   );
 }
