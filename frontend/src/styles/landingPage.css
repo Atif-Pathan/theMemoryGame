@@ -1,3 +1,4 @@
+/* Landing Page css */
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
 
 :root[data-theme="dark"] {
@@ -24,10 +25,10 @@
 }
 
 :root[data-theme="light"] {
-  --bg-primary: #f8fafc;
+  --bg-primary: #eef4f9;
   --bg-secondary: #ffffff;
   --bg-card: rgba(255, 255, 255, 0.9);
-  --bg-elevated: #f1f5f9;
+  --bg-elevated: #e6eef6;
   --text-primary: #1e293b;
   --text-secondary: #475569;
   --text-muted: #64748b;
@@ -75,7 +76,7 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .theme-toggle {
@@ -114,7 +115,7 @@
 
 .title-container {
   position: relative;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .game-title {
@@ -181,8 +182,9 @@
 
 .best-score {
   color: var(--accent-success);
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-family: var(--text-muted);
+  font-weight: 900;
+  font-size: 1.4rem;
   margin: 0;
 }
 
@@ -194,7 +196,7 @@
 
 .rules-header {
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .rules-title {
@@ -221,7 +223,7 @@
   gap: 0.8rem;
   padding: 0.6rem;
   border-radius: 12px;
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(89, 92, 235, 0.2);
   border: 1px solid transparent;
   transition: all 0.3s ease;
   position: relative;
@@ -245,8 +247,8 @@
 
 .rule-item:hover {
   transform: translateY(-2px);
-  background: rgba(99, 102, 241, 0.08);
-  border-color: rgba(99, 102, 241, 0.2);
+  background: rgba(99, 101, 241, 0.105);
+  border-color: rgba(99, 101, 241, 0.23);
 }
 
 .rule-number {

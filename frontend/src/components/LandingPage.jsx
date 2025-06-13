@@ -35,13 +35,13 @@ export default function LandingPage({ onStartGame }) {
   const getDifficultyData = (rows) => {
     const configs = {
       3: { color: "#22c55e", icon: "🌱" },
-      4: { color: "#3b82f6", icon: "🎮" },
-      5: { color: "#8b5cf6", icon: "⚡" },
+      4: { color: "#3b82f6", icon: "⚡" },
+      5: { color: "#8b5cf6", icon: "⭐" },
       6: { color: "#f59e0b", icon: "🔥" },
       7: { color: "#ef4444", icon: "💎" },
       8: { color: "#ec4899", icon: "👑" },
-      9: { color: "#6366f1", icon: "🌟" },
-      10: { color: "#8b5cf6", icon: "⚡" }
+      9: { color: "#6366f1", icon: "♟" },
+      10: { color: "#8b5cf6", icon: "🥇" }
     };
     return configs[rows] || configs[4];
   };
@@ -70,7 +70,7 @@ export default function LandingPage({ onStartGame }) {
             <div className="title-glow"></div>
           </div>
           {bestScore > 0 && (
-            <p className="best-score">Personal Best: {bestScore}</p>
+            <p className="best-score-2">Personal Best: {bestScore}</p>
           )}
         </div>
 
